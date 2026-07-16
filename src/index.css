@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-macies-black: #1A1A1A;
+  --color-macies-gold: #D4AF37;
+  --color-macies-white: #FFFFFF;
+}
+
+body {
+  @apply bg-macies-black text-macies-white font-sans;
+}
