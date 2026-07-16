@@ -1,4 +1,4 @@
-import { Search, Download, Edit, Upload, AlertCircle } from 'lucide-react';
+import { Search, Download, Upload, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../../services/api';
 

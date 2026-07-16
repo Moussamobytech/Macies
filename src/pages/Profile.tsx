@@ -1,4 +1,4 @@
-import { User, Mail, Phone } from 'lucide-react';
+import { User, Mail } from 'lucide-react';
 
 export function Profile() {
   return (
