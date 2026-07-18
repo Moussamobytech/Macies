@@ -1,6 +1,7 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, Settings2, Activity, Bell, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useAuthStore } from '../../store/useAuthStore';
 
 function AdminSidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
@@ -76,6 +77,15 @@ function AdminHeader({ onMenuClick }: { onMenuClick?: () => void }) {
 
 export function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { token, user } = useAuthStore();
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user?.role !== 'ADMIN') {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex h-screen bg-[#111111] text-white overflow-hidden">
