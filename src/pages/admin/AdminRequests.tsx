@@ -1,5 +1,5 @@
 import { Search, Download, Upload, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fetchApi } from '../../services/api';
 
 export function AdminRequests() {
@@ -34,8 +34,39 @@ export function AdminRequests() {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeUploadId, setActiveUploadId] = useState<string | null>(null);
+
+  const handleUploadClick = (id: string) => {
+    setActiveUploadId(id);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeUploadId) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      await fetchApi(`/requests/${activeUploadId}/deliver`, {
+        method: 'POST',
+        body: formData
+      });
+      alert('Livrable envoyé avec succès!');
+      loadRequests();
+    } catch (err: any) {
+      alert("Erreur d'upload: " + err.message);
+    } finally {
+      setActiveUploadId(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestion des Demandes</h1>
@@ -84,7 +115,7 @@ export function AdminRequests() {
               ) : (
                 requests.map((req) => (
                   <tr key={req.id} className="border-b border-[#333333] hover:bg-[#111111] transition-colors">
-                    <td className="p-4 text-sm font-mono text-gray-300">#{req.id.split('-')[0]}</td>
+                    <td className="p-4 text-sm font-mono text-gray-300">#MAC-{req.id.substring(0, 4).toUpperCase()}</td>
                     <td className="p-4 text-sm">{req.user?.name || 'Inconnu'}</td>
                     <td className="p-4 text-sm text-gray-300">{req.type}</td>
                     <td className="p-4">
@@ -103,7 +134,7 @@ export function AdminRequests() {
                       {new Date(req.createdAt).toLocaleDateString('fr-FR')}
                     </td>
                     <td className="p-4 flex gap-2">
-                      <button className="p-2 hover:bg-[#333333] rounded text-blue-400 transition-colors" title="Uploader Livrable">
+                      <button onClick={() => handleUploadClick(req.id)} className="p-2 hover:bg-[#333333] rounded text-blue-400 transition-colors" title="Uploader Livrable">
                         <Upload size={16} />
                       </button>
                     </td>
