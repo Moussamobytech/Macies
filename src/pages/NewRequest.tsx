@@ -2,13 +2,20 @@ import { Upload, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import { fetchApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { upload } from '@vercel/blob/client';
 
 export function NewRequest() {
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
+  
+  // CV fields
   const [cvCoordonnees, setCvCoordonnees] = useState('');
   const [cvExperiences, setCvExperiences] = useState('');
   const [cvCompetences, setCvCompetences] = useState('');
+  
+  // Software fields
+  const [softwareName, setSoftwareName] = useState('Logiciel de Gestion');
+  const [softwareEdition, setSoftwareEdition] = useState('Standard');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +29,8 @@ export function NewRequest() {
     
     const finalDescription = type === 'CV professionnel' 
       ? `**Coordonnées:**\n${cvCoordonnees}\n\n**Expériences:**\n${cvExperiences}\n\n**Compétences:**\n${cvCompetences}`
+      : type === 'Achat de logiciel professionnel'
+      ? `**Logiciel:** ${softwareName}\n**Édition:** ${softwareEdition}`
       : description;
 
     if (!type || !finalDescription.trim()) {
@@ -32,17 +41,33 @@ export function NewRequest() {
     setLoading(true);
     
     try {
-      const formData = new FormData();
-      formData.append('type', type);
-      formData.append('description', finalDescription);
-      
-      files.forEach(file => {
-        formData.append('files', file);
-      });
+      let fileUrls: string[] = [];
+      if (files.length > 0 && type !== 'Achat de logiciel professionnel') {
+        const token = localStorage.getItem('macies_token') || '';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://macies-backend.vercel.app/api';
+        
+        for (const file of files) {
+          const newBlob = await upload(file.name, file, {
+            access: 'public',
+            handleUploadUrl: `${apiUrl}/requests/upload-token`,
+            clientPayload: token
+          });
+          fileUrls.push(newBlob.url);
+        }
+      }
+
+      const fileUrl = fileUrls.length > 0 ? fileUrls.join(',') : null;
 
       await fetchApi('/requests', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type,
+          description: finalDescription,
+          fileUrl
+        }),
       });
       setSuccess(true);
       setTimeout(() => navigate('/requests'), 2000);
@@ -88,14 +113,46 @@ export function NewRequest() {
               className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors appearance-none"
             >
               <option value="">Sélectionnez un service...</option>
+              <option value="Achat de logiciel professionnel">Achat de logiciel professionnel</option>
               <option value="CV professionnel">Aide à la rédaction - CV Professionnel</option>
               <option value="Aide à la rédaction">Aide à la rédaction (Autre document)</option>
               <option value="Édition et mise en page">Édition et mise en page</option>
-              <option value="Achat de logiciel professionnel">Achat de logiciel professionnel</option>
             </select>
           </div>
 
-          {type === 'CV professionnel' ? (
+          {type === 'Achat de logiciel professionnel' ? (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Quel logiciel souhaitez-vous ? *</label>
+                <select 
+                  value={softwareName} 
+                  onChange={(e) => setSoftwareName(e.target.value)} 
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors appearance-none"
+                >
+                  <option value="Logiciel de Gestion">Logiciel de Gestion</option>
+                  <option value="Suite Microsoft (Office 365, Windows...)">Suite Microsoft (Office 365, Windows...)</option>
+                  <option value="Antivirus">Antivirus</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Édition souhaitée *</label>
+                <div className="grid grid-cols-3 gap-4">
+                  {['Standard', 'Pro', 'Premium'].map(edition => (
+                    <button
+                      key={edition}
+                      type="button"
+                      onClick={() => setSoftwareEdition(edition)}
+                      className={`py-3 px-4 rounded-lg border text-center transition-colors ${softwareEdition === edition ? 'bg-[#D4AF37] text-black border-[#D4AF37] font-bold shadow-[0_0_15px_rgba(212,175,55,0.3)]' : 'bg-[#1A1A1A] border-[#333333] text-gray-400 hover:border-[#D4AF37]/50'}`}
+                    >
+                      {edition}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : type === 'CV professionnel' ? (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
               <div className="p-4 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg">
                 <p className="text-sm text-[#D4AF37]">
@@ -147,31 +204,33 @@ export function NewRequest() {
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Fichiers joints (Optionnel)
-              {type === 'CV professionnel' && <span className="text-gray-500 font-normal ml-2">- Vous pouvez joindre votre ancien CV et une photo</span>}
-            </label>
-            <div className="relative border-2 border-dashed border-[#333333] rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-[#1A1A1A]/50 hover:border-[#D4AF37]/50 transition-colors group">
-              <input 
-                type="file" 
-                multiple
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={(e) => setFiles(Array.from(e.target.files || []))}
-              />
-              <div className="w-12 h-12 bg-[#333333] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#D4AF37]/20 transition-colors">
-                <Upload className="text-gray-400 group-hover:text-[#D4AF37] transition-colors" size={24} />
+          {type !== 'Achat de logiciel professionnel' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Fichiers joints (Optionnel)
+                {type === 'CV professionnel' && <span className="text-gray-500 font-normal ml-2">- Vous pouvez joindre votre ancien CV et une photo</span>}
+              </label>
+              <div className="relative border-2 border-dashed border-[#333333] rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-[#1A1A1A]/50 hover:border-[#D4AF37]/50 transition-colors group">
+                <input 
+                  type="file" 
+                  multiple
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e) => setFiles(Array.from(e.target.files || []))}
+                />
+                <div className="w-12 h-12 bg-[#333333] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#D4AF37]/20 transition-colors">
+                  <Upload className="text-gray-400 group-hover:text-[#D4AF37] transition-colors" size={24} />
+                </div>
+                <p className="font-medium text-gray-300 mb-1">
+                  {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : "Cliquez pour ajouter des fichiers"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {files.length > 0 
+                    ? files.map(f => f.name).join(', ')
+                    : "PDF, Word, Images jusqu'à 50 Mo"}
+                </p>
               </div>
-              <p className="font-medium text-gray-300 mb-1">
-                {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : "Cliquez pour ajouter des fichiers"}
-              </p>
-              <p className="text-sm text-gray-500">
-                {files.length > 0 
-                  ? files.map(f => f.name).join(', ')
-                  : "PDF, Word, Images jusqu'à 50 Mo"}
-              </p>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="pt-6 border-t border-[#333333] flex justify-end">

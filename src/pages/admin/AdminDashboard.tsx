@@ -1,10 +1,31 @@
-import { FileText, Users, DollarSign } from 'lucide-react';
+import { FileText, Users, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { fetchApi } from '../../services/api';
 
 export function AdminDashboard() {
+  const [statsData, setStatsData] = useState({
+    pendingRequests: 0,
+    activeClients: 0,
+    deliveredRequests: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchApi('/admin/stats')
+      .then(data => {
+        setStatsData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
   const stats = [
-    { label: 'Demandes à traiter', value: '14', icon: FileText, color: 'text-orange-400' },
-    { label: 'Clients Actifs', value: '128', icon: Users, color: 'text-blue-400' },
-    { label: 'Chiffre d\'Affaires (Mois)', value: '450K FCFA', icon: DollarSign, color: 'text-green-400' },
+    { label: 'Demandes à traiter (En attente/En cours)', value: loading ? '...' : statsData.pendingRequests.toString(), icon: FileText, color: 'text-orange-400' },
+    { label: 'Clients Actifs', value: loading ? '...' : statsData.activeClients.toString(), icon: Users, color: 'text-blue-400' },
+    { label: 'Commandes Livrées', value: loading ? '...' : statsData.deliveredRequests.toString(), icon: CheckCircle, color: 'text-green-400' },
   ];
 
   return (
@@ -16,13 +37,13 @@ export function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-[#1A1A1A] border border-[#333333] p-6 rounded-xl flex items-center gap-4">
+          <div key={i} className="bg-[#1A1A1A] border border-[#333333] p-6 rounded-xl flex items-center gap-4 transition-transform hover:scale-[1.02]">
             <div className={`p-4 rounded-lg bg-black/50 ${stat.color}`}>
               <stat.icon size={24} />
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-              <p className="text-2xl font-bold">{stat.value}</p>
+              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-white">{stat.value}</p>
             </div>
           </div>
         ))}

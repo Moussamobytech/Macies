@@ -1,11 +1,20 @@
-import { Search, Download, Upload, AlertCircle } from 'lucide-react';
+import { Search, Download, Upload, AlertCircle, X, Key } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { fetchApi } from '../../services/api';
+import { upload } from '@vercel/blob/client';
 
 export function AdminRequests() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  const [deliveringId, setDeliveringId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Software Modal State
+  const [softwareModalOpen, setSoftwareModalOpen] = useState(false);
+  const [softwareLink, setSoftwareLink] = useState('');
+  const [softwareKey, setSoftwareKey] = useState('');
 
   const loadRequests = async () => {
     try {
@@ -26,6 +35,7 @@ export function AdminRequests() {
     try {
       await fetchApi(`/requests/${id}`, {
         method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
       loadRequests();
@@ -34,39 +44,79 @@ export function AdminRequests() {
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeUploadId, setActiveUploadId] = useState<string | null>(null);
+  const handleDeliverClick = (req: any) => {
+    setDeliveringId(req.id);
+    if (req.type === 'Achat de logiciel professionnel') {
+      setSoftwareModalOpen(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
 
-  const handleUploadClick = (id: string) => {
-    setActiveUploadId(id);
-    fileInputRef.current?.click();
+  const handleSoftwareDeliver = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deliveringId || !softwareLink) return;
+
+    const deliverableData = JSON.stringify({
+      link: softwareLink,
+      key: softwareKey
+    });
+
+    try {
+      await fetchApi(`/requests/${deliveringId}/deliver`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deliverableUrl: deliverableData }),
+      });
+      alert('Logiciel livré avec succès!');
+      setSoftwareModalOpen(false);
+      setSoftwareLink('');
+      setSoftwareKey('');
+      loadRequests();
+    } catch (err: any) {
+      alert("Erreur: " + err.message);
+    } finally {
+      setDeliveringId(null);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !activeUploadId) return;
+    if (!file || !deliveringId) return;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      alert('Upload en cours... Merci de patienter.');
+      const token = localStorage.getItem('macies_token') || '';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://macies-backend.vercel.app/api';
       
-      await fetchApi(`/requests/${activeUploadId}/deliver`, {
-        method: 'POST',
-        body: formData
+      const newBlob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: `${apiUrl}/requests/upload-token`,
+        clientPayload: token
       });
+
+      await fetchApi(`/requests/${deliveringId}/deliver`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ deliverableUrl: newBlob.url }),
+      });
+      
       alert('Livrable envoyé avec succès!');
       loadRequests();
     } catch (err: any) {
       alert("Erreur d'upload: " + err.message);
     } finally {
-      setActiveUploadId(null);
+      setDeliveringId(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 relative">
       <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestion des Demandes</h1>
@@ -134,8 +184,8 @@ export function AdminRequests() {
                       {new Date(req.createdAt).toLocaleDateString('fr-FR')}
                     </td>
                     <td className="p-4 flex gap-2">
-                      <button onClick={() => handleUploadClick(req.id)} className="p-2 hover:bg-[#333333] rounded text-blue-400 transition-colors" title="Uploader Livrable">
-                        <Upload size={16} />
+                      <button onClick={() => handleDeliverClick(req)} className="p-2 hover:bg-[#333333] rounded text-blue-400 transition-colors" title={req.type === 'Achat de logiciel professionnel' ? 'Livrer Licence' : 'Uploader Livrable'}>
+                        {req.type === 'Achat de logiciel professionnel' ? <Key size={16} /> : <Upload size={16} />}
                       </button>
                     </td>
                   </tr>
@@ -145,6 +195,47 @@ export function AdminRequests() {
           </table>
         </div>
       </div>
+
+      {/* Software Delivery Modal */}
+      {softwareModalOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111111] border border-[#333333] rounded-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="p-4 border-b border-[#333333] flex justify-between items-center bg-[#1A1A1A]">
+              <h2 className="font-bold text-lg flex items-center gap-2"><Key className="text-[#D4AF37]" size={20} /> Livrer un Logiciel</h2>
+              <button onClick={() => setSoftwareModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSoftwareDeliver} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Lien de téléchargement *</label>
+                <input 
+                  type="url" 
+                  required
+                  value={softwareLink}
+                  onChange={(e) => setSoftwareLink(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  placeholder="https://mega.nz/..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Clé d'activation (Optionnel)</label>
+                <input 
+                  type="text" 
+                  value={softwareKey}
+                  onChange={(e) => setSoftwareKey(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-2 text-white font-mono focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  placeholder="XXXX-XXXX-XXXX-XXXX"
+                />
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button type="button" onClick={() => setSoftwareModalOpen(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Annuler</button>
+                <button type="submit" className="bg-[#D4AF37] hover:bg-[#c29e2f] text-black font-bold px-6 py-2 rounded-lg transition-colors text-sm">Livrer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

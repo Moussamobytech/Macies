@@ -84,15 +84,44 @@ export function Dashboard() {
                       <td className="p-4 text-sm text-gray-500">{new Date(req.createdAt).toLocaleDateString('fr-FR')}</td>
                       <td className="p-4 text-right">
                         {req.status === 'DELIVERED' && req.deliverableUrl && (
-                          <div className="flex flex-col items-end gap-1">
-                            <a 
-                              href={req.deliverableUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-xs bg-[#D4AF37] hover:bg-[#c29e2f] text-black px-3 py-1.5 rounded font-bold transition-colors inline-block"
-                            >
-                              Télécharger Livrable
-                            </a>
+                          <div className="flex flex-col items-end gap-2">
+                            {(() => {
+                              try {
+                                if (req.deliverableUrl.startsWith('{')) {
+                                  const data = JSON.parse(req.deliverableUrl);
+                                  return (
+                                    <div className="flex flex-col items-end gap-2">
+                                      <a 
+                                        href={data.link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-xs bg-[#D4AF37] hover:bg-[#c29e2f] text-black px-3 py-1.5 rounded font-bold transition-colors inline-block text-center"
+                                      >
+                                        Télécharger Logiciel
+                                      </a>
+                                      {data.key && (
+                                        <div className="bg-[#111111] border border-[#333333] px-3 py-1.5 rounded flex items-center gap-2 mt-1 shadow-sm">
+                                          <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Clé :</span>
+                                          <code className="text-xs text-[#D4AF37] font-mono font-bold select-all">{data.key}</code>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                              } catch (e) {}
+                              
+                              // Fallback pour les fichiers (non JSON)
+                              return (
+                                <a 
+                                  href={req.deliverableUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-xs bg-[#D4AF37] hover:bg-[#c29e2f] text-black px-3 py-1.5 rounded font-bold transition-colors inline-block"
+                                >
+                                  Télécharger Livrable
+                                </a>
+                              );
+                            })()}
                             <span className="text-[10px] text-gray-400 italic">Veuillez régler en boutique ou via mobile money.</span>
                           </div>
                         )}
