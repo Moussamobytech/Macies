@@ -9,6 +9,7 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
     { to: '/admin', icon: LayoutDashboard, label: 'Vue d\'ensemble' },
     { to: '/admin/requests', icon: FileText, label: 'Gestion Demandes' },
     { to: '/admin/clients', icon: Users, label: 'Base Clients' },
+    { to: '/admin/logs', icon: Activity, label: 'Logs Système' },
   ];
 
   return (
