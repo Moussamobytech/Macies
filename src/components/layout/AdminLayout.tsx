@@ -9,7 +9,8 @@ import {
   Menu, 
   X, 
   Settings, 
-  LogOut 
+  LogOut,
+  ShoppingCart
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -20,6 +21,7 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
   const links = [
     { to: '/admin', icon: LayoutDashboard, label: 'Vue d\'ensemble' },
     { to: '/admin/requests', icon: FileText, label: 'Gestion Demandes' },
+    { to: '/admin/orders', icon: ShoppingCart, label: 'Commandes' },
     { to: '/admin/clients', icon: Users, label: 'Base Clients' },
     { to: '/admin/logs', icon: Activity, label: 'Logs Système' },
   ];
