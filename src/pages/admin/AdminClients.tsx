@@ -104,7 +104,7 @@ export function AdminClients() {
           </div>
         )}
 
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-[#333333] text-gray-400 text-sm bg-black/20">
@@ -139,7 +139,7 @@ export function AdminClients() {
                     <td className="p-4 text-center">
                       <button 
                         onClick={() => setSelectedClient(client)}
-                        className="p-2 bg-[#333333] hover:bg-[#444444] text-white rounded transition-colors inline-flex items-center justify-center"
+                        className="p-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 rounded transition-colors inline-flex items-center justify-center"
                         title="Voir la fiche client"
                       >
                         <Eye size={16} />
