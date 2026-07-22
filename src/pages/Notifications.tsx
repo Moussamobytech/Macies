@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, AlertCircle, Eye } from 'lucide-react';
+import { CheckCircle, AlertCircle, Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../services/api';
 
