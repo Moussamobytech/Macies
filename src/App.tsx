@@ -40,6 +40,7 @@ function App() {
           <Route path="clients" element={<AdminClients />} />
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="logs" element={<AdminLogs />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

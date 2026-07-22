@@ -1,4 +1,4 @@
-import { Activity, Clock, CheckCircle, RefreshCw, AlertCircle, FileEdit, Truck } from 'lucide-react';
+import { Activity, Clock, RefreshCw, AlertCircle, FileEdit, Truck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../../services/api';
 
@@ -56,18 +56,18 @@ export function AdminLogs() {
         )}
 
         {loading && logs.length === 0 ? (
-          <div className="text-center text-gray-500 py-12 flex flex-col items-center gap-4">
+          <div key="loading" className="text-center text-gray-500 py-12 flex flex-col items-center gap-4">
             <RefreshCw size={32} className="animate-spin text-[#333333]" />
-            Chargement de l'historique...
+            <span>Chargement de l'historique...</span>
           </div>
         ) : logs.length === 0 ? (
-          <div className="text-center text-gray-500 py-12 flex flex-col items-center gap-4">
+          <div key="empty" className="text-center text-gray-500 py-12 flex flex-col items-center gap-4">
             <Activity size={48} className="text-[#333333]" />
             <p>Aucun log enregistré pour le moment.</p>
             <p className="text-sm">Les actions des administrateurs apparaîtront ici.</p>
           </div>
         ) : (
-          <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#333333] before:to-transparent">
+          <div key="list" className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#333333] before:to-transparent">
             {logs.map((log) => (
               <div key={log.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                 
@@ -90,7 +90,7 @@ export function AdminLogs() {
                     </span>
                   </div>
                   <div className="text-gray-300 text-sm mt-2 font-medium">
-                    {log.details}
+                    {typeof log.details === 'object' ? JSON.stringify(log.details) : log.details}
                   </div>
                 </div>
               </div>

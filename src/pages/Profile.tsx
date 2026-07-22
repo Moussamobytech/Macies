@@ -1,6 +1,9 @@
 import { User, Mail } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 
 export function Profile() {
+  const { user } = useAuthStore();
+
   return (
     <div className="max-w-4xl space-y-8 animate-in fade-in duration-500">
       <div>
@@ -14,8 +17,8 @@ export function Profile() {
             <User size={48} className="text-[#D4AF37]" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Amadou Traoré</h2>
-            <p className="text-[#D4AF37] font-medium">Client Standard</p>
+            <h2 className="text-2xl font-bold text-white">{user?.name || 'Utilisateur'}</h2>
+            <p className="text-[#D4AF37] font-medium">{user?.role === 'ADMIN' ? 'Administrateur' : 'Client Standard'}</p>
           </div>
         </div>
         
@@ -28,11 +31,11 @@ export function Profile() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-500 mb-1">Nom Complet</label>
-                <p className="text-white font-medium">Amadou Traoré</p>
+                <p className="text-white font-medium">{user?.name}</p>
               </div>
               <div>
-                <label className="block text-sm text-gray-500 mb-1">Date d'inscription</label>
-                <p className="text-white font-medium">16 Juillet 2026</p>
+                <label className="block text-sm text-gray-500 mb-1">Rôle</label>
+                <p className="text-white font-medium">{user?.role === 'ADMIN' ? 'Administrateur' : 'Client'}</p>
               </div>
             </div>
           </div>
@@ -45,11 +48,11 @@ export function Profile() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-500 mb-1">Email</label>
-                <p className="text-white font-medium">contact.maciesenterprise@gmail.com</p>
+                <p className="text-white font-medium">{user?.email}</p>
               </div>
               <div>
                 <label className="block text-sm text-gray-500 mb-1">Téléphone</label>
-                <p className="text-white font-medium">+223 76 50 60 05</p>
+                <p className="text-white font-medium italic text-gray-400">Géré depuis les paramètres</p>
               </div>
             </div>
           </div>
