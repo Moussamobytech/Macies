@@ -1,4 +1,4 @@
-import { Download, Users, AlertCircle, Phone, Mail, Search, Eye, MessageCircle, X } from 'lucide-react';
+import { Download, Users, AlertCircle, Phone, Mail, Search, Eye, MessageCircle, X, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../../services/api';
 
@@ -9,6 +9,7 @@ export function AdminClients() {
   
   // Search
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   // Modal State
   const [selectedClient, setSelectedClient] = useState<any | null>(null);
@@ -76,9 +77,27 @@ export function AdminClients() {
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2"><Users className="text-[#D4AF37]" /> Base Clients</h1>
           <p className="text-gray-400">Liste des utilisateurs inscrits sur la plateforme.</p>
         </div>
-        <button onClick={exportCSV} className="bg-[#333333] hover:bg-[#444444] text-white py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-          <Download size={18} /> Export CSV
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex bg-[#1A1A1A] border border-[#333333] rounded-lg p-1">
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[#333333] text-white' : 'text-gray-400 hover:text-white'}`}
+              title="Vue en grille"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button 
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[#333333] text-white' : 'text-gray-400 hover:text-white'}`}
+              title="Vue en liste"
+            >
+              <ListIcon size={18} />
+            </button>
+          </div>
+          <button onClick={exportCSV} className="bg-[#333333] hover:bg-[#444444] text-white py-2 px-4 rounded-lg flex items-center gap-2 transition-colors flex-1 md:flex-none justify-center">
+            <Download size={18} /> <span className="hidden md:inline">Export CSV</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl overflow-hidden shadow-xl">
@@ -104,53 +123,107 @@ export function AdminClients() {
           </div>
         )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse whitespace-nowrap">
-            <thead>
-              <tr className="border-b border-[#333333] text-gray-400 text-sm bg-black/20">
-                <th className="p-4 font-medium">Nom complet</th>
-                <th className="p-4 font-medium">Contact</th>
-                <th className="p-4 font-medium">Inscription</th>
-                <th className="p-4 font-medium text-center">Commandes</th>
-                <th className="p-4 font-medium text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-500">Chargement des clients...</td></tr>
-              ) : filteredClients.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-500">Aucun client trouvé.</td></tr>
-              ) : (
-                filteredClients.map((client) => (
-                  <tr key={client.id} className="border-b border-[#333333] hover:bg-[#111111] transition-colors">
-                    <td className="p-4 font-medium text-white">{client.name}</td>
-                    <td className="p-4 text-sm text-gray-400 space-y-1">
-                      <div className="flex items-center gap-2"><Mail size={14} className="text-[#D4AF37]" /> {client.email}</div>
-                      <div className="flex items-center gap-2"><Phone size={14} className="text-[#D4AF37]" /> {client.phone}</div>
-                    </td>
-                    <td className="p-4 text-sm text-gray-500">
-                      {new Date(client.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="bg-[#D4AF37]/20 text-[#D4AF37] px-3 py-1 rounded-full text-xs font-bold border border-[#D4AF37]/30">
-                        {client._count?.requests || 0}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
+        {viewMode === 'list' ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-[#333333] text-gray-400 text-sm bg-black/20">
+                  <th className="p-4 font-medium">Nom complet</th>
+                  <th className="p-4 font-medium">Contact</th>
+                  <th className="p-4 font-medium">Inscription</th>
+                  <th className="p-4 font-medium text-center">Commandes</th>
+                  <th className="p-4 font-medium text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={5} className="p-8 text-center text-gray-500">Chargement des clients...</td></tr>
+                ) : filteredClients.length === 0 ? (
+                  <tr><td colSpan={5} className="p-8 text-center text-gray-500">Aucun client trouvé.</td></tr>
+                ) : (
+                  filteredClients.map((client) => (
+                    <tr key={client.id} className="border-b border-[#333333] hover:bg-[#111111] transition-colors">
+                      <td className="p-4 font-medium text-white">{client.name}</td>
+                      <td className="p-4 text-sm text-gray-400 space-y-1">
+                        <div className="flex items-center gap-2"><Mail size={14} className="text-[#D4AF37]" /> {client.email}</div>
+                        <div className="flex items-center gap-2"><Phone size={14} className="text-[#D4AF37]" /> {client.phone}</div>
+                      </td>
+                      <td className="p-4 text-sm text-gray-500">
+                        {new Date(client.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="bg-[#D4AF37]/20 text-[#D4AF37] px-3 py-1 rounded-full text-xs font-bold border border-[#D4AF37]/30">
+                          {client._count?.requests || 0}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <button 
+                          onClick={() => setSelectedClient(client)}
+                          className="p-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 rounded transition-colors inline-flex items-center justify-center"
+                          title="Voir la fiche client"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-6">
+            {loading ? (
+              <div className="text-center text-gray-500 py-8">Chargement des clients...</div>
+            ) : filteredClients.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">Aucun client trouvé.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredClients.map((client) => (
+                  <div key={client.id} className="bg-[#111111] border border-[#333333] rounded-xl p-5 hover:border-[#D4AF37]/50 transition-colors flex flex-col h-full shadow-lg">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-[#1A1A1A] border border-[#333333] flex items-center justify-center text-xl font-bold text-[#D4AF37]">
+                        {client.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-lg line-clamp-1">{client.name}</h3>
+                        <span className="text-xs text-gray-500">
+                          Inscrit le {new Date(client.createdAt).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 space-y-3 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
+                        <Mail size={16} className="text-gray-500" />
+                        <span className="truncate">{client.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
+                        <Phone size={16} className="text-gray-500" />
+                        <span>{client.phone}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-auto pt-4 border-t border-[#333333] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Commandes</span>
+                        <span className="bg-[#D4AF37]/20 text-[#D4AF37] px-2.5 py-0.5 rounded-full text-xs font-bold border border-[#D4AF37]/30">
+                          {client._count?.requests || 0}
+                        </span>
+                      </div>
                       <button 
                         onClick={() => setSelectedClient(client)}
-                        className="p-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 rounded transition-colors inline-flex items-center justify-center"
-                        title="Voir la fiche client"
+                        className="flex items-center gap-2 bg-[#333333] hover:bg-[#444444] text-white px-3 py-1.5 rounded-lg transition-colors text-sm font-medium"
                       >
-                        <Eye size={16} />
+                        <Eye size={16} /> Profil
                       </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Fiche Client Modal */}
