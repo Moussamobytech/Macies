@@ -17,6 +17,8 @@ import { AdminClients } from './pages/admin/AdminClients';
 import { AdminPricing } from './pages/admin/AdminPricing';
 import { AdminLogs } from './pages/admin/AdminLogs';
 
+import { AdminNotifications } from './pages/admin/AdminNotifications';
+
 function App() {
   return (
     <BrowserRouter>
@@ -41,6 +43,7 @@ function App() {
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="logs" element={<AdminLogs />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="notifications" element={<AdminNotifications />} />
         </Route>
       </Routes>
     </BrowserRouter>

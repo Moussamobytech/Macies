@@ -1,7 +1,19 @@
 import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Settings2, Activity, Bell, User, Menu, X, Settings, LogOut } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  Activity, 
+  Bell, 
+  User, 
+  Menu, 
+  X, 
+  Settings, 
+  LogOut 
+} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { fetchApi } from '../../services/api';
 
 function AdminSidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
@@ -50,9 +62,21 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
 
 function AdminHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user && user.role === 'ADMIN') {
+      fetchApi('/notifications')
+        .then(data => {
+          const unread = data.filter((n: any) => !n.isRead).length;
+          setUnreadCount(unread);
+        })
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,10 +106,14 @@ function AdminHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         </h2>
       </div>
       <div className="flex items-center gap-4 md:gap-6">
-        <button className="relative text-gray-400 hover:text-white transition-colors">
+        <Link to="/admin/notifications" className="relative text-gray-400 hover:text-white transition-colors">
           <Bell size={20} />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-        </button>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[16px] min-h-[16px]">
+              {unreadCount}
+            </span>
+          )}
+        </Link>
         <div className="relative" ref={menuRef}>
           <div 
             onClick={() => setIsProfileOpen(!isProfileOpen)}

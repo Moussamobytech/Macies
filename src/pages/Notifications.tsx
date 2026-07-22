@@ -1,38 +1,43 @@
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { fetchApi } from '../services/api';
 
 export function Notifications() {
-  const notifications = [
-    {
-      id: 1,
-      title: "Commande Livrée",
-      description: "Votre commande #MAC-001 (CV Professionnel) est prête. Vous pouvez télécharger le livrable.",
-      time: "Il y a 2 heures",
-      icon: CheckCircle,
-      color: "text-green-500",
-      bg: "bg-green-500/10",
-      unread: true
-    },
-    {
-      id: 2,
-      title: "Demande en cours de traitement",
-      description: "Votre demande de conception de logo a été assignée à un opérateur.",
-      time: "Hier à 14:30",
-      icon: Clock,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-      unread: false
-    },
-    {
-      id: 3,
-      title: "Rappel de paiement",
-      description: "N'oubliez pas de régler votre abonnement annuel pour le logiciel de gestion.",
-      time: "Il y a 3 jours",
-      icon: AlertCircle,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-      unread: false
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchApi('/notifications');
+      setNotifications(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const markAsRead = async (id: string) => {
+    try {
+      await fetchApi(`/notifications/${id}/read`, { method: 'PATCH' });
+      setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await fetchApi('/notifications/read-all', { method: 'PATCH' });
+      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="max-w-3xl space-y-8 animate-in fade-in duration-500">
@@ -41,36 +46,53 @@ export function Notifications() {
           <h1 className="text-3xl font-bold mb-2">Notifications</h1>
           <p className="text-gray-400">Suivez les mises à jour de vos demandes et de votre compte.</p>
         </div>
-        <button className="text-[#D4AF37] hover:underline text-sm font-medium">
+        <button onClick={markAllAsRead} className="text-[#D4AF37] hover:underline text-sm font-medium">
           Tout marquer comme lu
         </button>
       </div>
 
       <div className="bg-[#111111] border border-[#333333] rounded-xl overflow-hidden">
-        {notifications.map((notif) => (
-          <div 
-            key={notif.id} 
-            className={`p-6 border-b border-[#333333] last:border-0 flex gap-4 transition-colors hover:bg-[#1A1A1A] ${notif.unread ? 'bg-[#1A1A1A]/50' : ''}`}
-          >
-            <div className={`mt-1 p-3 rounded-full shrink-0 h-fit ${notif.bg} ${notif.color}`}>
-              <notif.icon size={20} />
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className={`font-semibold ${notif.unread ? 'text-white' : 'text-gray-300'}`}>
-                  {notif.title}
-                </h3>
-                <span className="text-xs text-gray-500 whitespace-nowrap ml-4">{notif.time}</span>
+        {loading ? (
+          <div className="p-8 text-center text-gray-500">Chargement...</div>
+        ) : notifications.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">Aucune notification.</div>
+        ) : (
+          notifications.map((notif) => (
+            <div 
+              key={notif.id} 
+              className={`p-6 border-b border-[#333333] last:border-0 flex gap-4 transition-colors hover:bg-[#1A1A1A] ${!notif.isRead ? 'bg-[#1A1A1A]/50' : ''}`}
+            >
+              <div className={`mt-1 p-3 rounded-full shrink-0 h-fit ${!notif.isRead ? 'bg-[#D4AF37]/10 text-[#D4AF37]' : 'bg-gray-800 text-gray-400'}`}>
+                {!notif.isRead ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed">{notif.description}</p>
-            </div>
-            {notif.unread && (
-              <div className="shrink-0 flex items-center justify-center w-4">
-                <div className="w-2.5 h-2.5 bg-[#D4AF37] rounded-full"></div>
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-1">
+                  <h3 className={`font-semibold ${!notif.isRead ? 'text-white' : 'text-gray-300'}`}>
+                    {notif.title}
+                  </h3>
+                  <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                    {new Date(notif.createdAt).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-400 leading-relaxed">{notif.message}</p>
               </div>
-            )}
-          </div>
-        ))}
+              <div className="shrink-0 flex items-center gap-2">
+                {!notif.isRead && (
+                  <button 
+                    onClick={() => markAsRead(notif.id)}
+                    className="p-2 text-gray-400 hover:text-white bg-[#333333] hover:bg-[#444444] rounded-lg transition-colors"
+                    title="Marquer comme lu"
+                  >
+                    <Eye size={16} />
+                  </button>
+                )}
+                {!notif.isRead && (
+                  <div className="w-2.5 h-2.5 bg-[#D4AF37] rounded-full ml-2"></div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

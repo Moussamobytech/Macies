@@ -2,9 +2,11 @@ import { Bell, User, Menu, Settings, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { fetchApi } from '../../services/api';
 
 export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -18,6 +20,17 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchApi('/notifications')
+        .then(data => {
+          const unread = data.filter((n: any) => !n.isRead).length;
+          setUnreadCount(unread);
+        })
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -39,7 +52,11 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       <div className="flex items-center gap-4 md:gap-6">
         <Link to="/notifications" className="relative text-gray-400 hover:text-white transition-colors">
           <Bell size={20} />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#D4AF37] rounded-full"></span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[16px] min-h-[16px]">
+              {unreadCount}
+            </span>
+          )}
         </Link>
         <div className="relative" ref={menuRef}>
           <div 
@@ -58,13 +75,6 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 <p className="text-xs text-gray-400 truncate">{user?.email}</p>
               </div>
               <div className="py-1">
-                <Link 
-                  to="/profile" 
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-[#333333] hover:text-white transition-colors"
-                >
-                  <User size={16} /> Mon Profil
-                </Link>
                 <Link 
                   to="/settings" 
                   onClick={() => setIsProfileOpen(false)}
