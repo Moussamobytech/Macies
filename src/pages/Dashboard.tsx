@@ -23,8 +23,8 @@ export function Dashboard() {
 
   const stats = [
     { label: 'Demandes en cours', value: requests.filter(r => r.status === 'PENDING' || r.status === 'IN_PROGRESS').length.toString(), icon: Clock, color: 'text-blue-400' },
-    { label: 'Livrées', value: requests.filter(r => r.status === 'DELIVERED').length.toString(), icon: CheckCircle, color: 'text-green-400' },
-    { label: 'Total Commandes', value: requests.length.toString(), icon: Package, color: 'text-[#D4AF37]' },
+    { label: 'Terminées', value: requests.filter(r => r.status === 'DELIVERED').length.toString(), icon: CheckCircle, color: 'text-green-400' },
+    { label: 'Commandes archivées', value: requests.length.toString(), icon: Package, color: 'text-[#D4AF37]' },
   ];
 
   return (
