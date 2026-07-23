@@ -9,7 +9,6 @@ import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Profile } from './pages/Profile';
-import { ClientPricing } from './pages/ClientPricing';
 import { Messages } from './pages/Messages';
 import { Notifications } from './pages/Notifications';
 
