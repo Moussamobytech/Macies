@@ -124,16 +124,45 @@ export function NewRequest() {
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Quel logiciel souhaitez-vous ? *</label>
-                <select 
-                  value={softwareName} 
-                  onChange={(e) => setSoftwareName(e.target.value)} 
-                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors appearance-none"
-                >
-                  <option value="Logiciel de Gestion">Logiciel de Gestion</option>
-                  <option value="Suite Microsoft (Office 365, Windows...)">Suite Microsoft (Office 365, Windows...)</option>
-                  <option value="Antivirus">Antivirus</option>
-                  <option value="Autre">Autre</option>
-                </select>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { id: 'Logiciel de Gestion', icon: '💻', title: 'Gestion' },
+                    { id: 'Suite Microsoft (Office 365, Windows...)', icon: '📝', title: 'Microsoft' },
+                    { id: 'Antivirus', icon: '🛡️', title: 'Antivirus' },
+                    { id: 'Autre', icon: '✨', title: 'Autre' }
+                  ].map(software => {
+                    const isSelected = 
+                      (software.id !== 'Autre' && softwareName === software.id) || 
+                      (software.id === 'Autre' && !['Logiciel de Gestion', 'Suite Microsoft (Office 365, Windows...)', 'Antivirus'].includes(softwareName));
+                      
+                    return (
+                      <div 
+                        key={software.id}
+                        onClick={() => setSoftwareName(software.id)}
+                        className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all ${
+                          isSelected 
+                          ? 'bg-[#D4AF37]/10 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.2)]' 
+                          : 'bg-[#1A1A1A] border-[#333333] hover:border-[#D4AF37]/50'
+                        }`}
+                      >
+                        <span className="text-3xl mb-2">{software.icon}</span>
+                        <span className={`text-sm font-bold ${isSelected ? 'text-[#D4AF37]' : 'text-gray-400'}`}>{software.title}</span>
+                        {isSelected && <div className="mt-3 w-2 h-2 bg-[#D4AF37] rounded-full"></div>}
+                      </div>
+                    );
+                  })}
+                </div>
+                {!['Logiciel de Gestion', 'Suite Microsoft (Office 365, Windows...)', 'Antivirus'].includes(softwareName) && (
+                  <div className="mt-4 animate-in fade-in slide-in-from-top-2">
+                    <input 
+                      type="text" 
+                      value={softwareName === 'Autre' ? '' : softwareName}
+                      onChange={(e) => setSoftwareName(e.target.value)}
+                      placeholder="Précisez le nom du logiciel souhaité..."
+                      className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
