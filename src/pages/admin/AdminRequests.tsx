@@ -1,5 +1,6 @@
-import { Search, Download, Upload, AlertCircle, X, Key, LayoutGrid, List as ListIcon, Filter } from 'lucide-react';
+import { Search, Download, Upload, AlertCircle, X, Key, LayoutGrid, List as ListIcon, Filter, MessageCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchApi } from '../../services/api';
 import { upload } from '@vercel/blob/client';
 
@@ -292,6 +293,9 @@ export function AdminRequests() {
                         {new Date(req.createdAt).toLocaleDateString('fr-FR')}
                       </td>
                       <td className="p-4 flex gap-2">
+                        <Link to={`/admin/requests/${req.id}`} className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-blue-500/30 rounded transition-colors" title="Discuter avec le client">
+                          <MessageCircle size={16} />
+                        </Link>
                         <button onClick={() => handleDeliverClick(req)} className="p-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 rounded transition-colors" title={req.type === 'Achat de logiciel professionnel' ? 'Livrer Licence' : 'Uploader Livrable'}>
                           {req.type === 'Achat de logiciel professionnel' ? <Key size={16} /> : <Upload size={16} />}
                         </button>
@@ -350,7 +354,13 @@ export function AdminRequests() {
                       </div>
                     </div>
                     
-                    <div className="mt-6 pt-4 border-t border-[#333333] flex justify-end">
+                    <div className="mt-6 pt-4 border-t border-[#333333] flex flex-col gap-2">
+                      <Link 
+                        to={`/admin/requests/${req.id}`}
+                        className="flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-blue-500/30 px-4 py-2.5 rounded-lg transition-colors text-sm font-bold w-full justify-center"
+                      >
+                        <MessageCircle size={18} /> Discuter avec le client
+                      </Link>
                       <button 
                         onClick={() => handleDeliverClick(req)} 
                         className="flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 px-4 py-2.5 rounded-lg transition-colors text-sm font-bold w-full justify-center"

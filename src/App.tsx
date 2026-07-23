@@ -20,6 +20,7 @@ import { AdminLogs } from './pages/admin/AdminLogs';
 
 import { AdminNotifications } from './pages/admin/AdminNotifications';
 import { AdminOrders } from './pages/admin/AdminOrders';
+import { AdminRequestDetails } from './pages/admin/AdminRequestDetails';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="requests" element={<AdminRequests />} />
+          <Route path="requests/:id" element={<AdminRequestDetails />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="clients" element={<AdminClients />} />
           <Route path="pricing" element={<AdminPricing />} />

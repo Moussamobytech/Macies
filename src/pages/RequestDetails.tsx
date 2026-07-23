@@ -7,14 +7,21 @@ export function RequestDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [request, setRequest] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadRequest = async () => {
+    const loadData = async () => {
       try {
-        const data = await fetchApi(`/requests/${id}`);
-        setRequest(data);
+        const [reqData, msgData] = await Promise.all([
+          fetchApi(`/requests/${id}`),
+          fetchApi(`/requests/${id}/messages`)
+        ]);
+        setRequest(reqData);
+        setMessages(msgData);
       } catch (err: any) {
         setError(err.message || 'Demande introuvable');
       } finally {
@@ -22,9 +29,29 @@ export function RequestDetails() {
       }
     };
     if (id) {
-      loadRequest();
+      loadData();
     }
   }, [id]);
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || sendingMessage) return;
+
+    setSendingMessage(true);
+    try {
+      const msg = await fetchApi(`/requests/${id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newMessage })
+      });
+      setMessages([...messages, msg]);
+      setNewMessage('');
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de l'envoi");
+    } finally {
+      setSendingMessage(false);
+    }
+  };
 
   if (loading) {
     return <div className="p-12 text-center text-gray-500">Chargement des détails...</div>;
@@ -171,14 +198,55 @@ export function RequestDetails() {
         )}
       </div>
 
-      {/* Placeholder for future chat */}
-      <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl p-8 text-center border-dashed">
-        <MessageCircle size={32} className="text-gray-600 mx-auto mb-3" />
-        <h3 className="text-gray-400 font-semibold mb-1">Messagerie intégrée</h3>
-        <p className="text-gray-500 text-sm">Cet espace vous permettra bientôt de discuter directement avec l'opérateur en charge de votre commande.</p>
+      {/* Chat Section */}
+      <div className="bg-[#111111] border border-[#333333] rounded-xl shadow-xl overflow-hidden flex flex-col h-[500px]">
+        <div className="p-4 border-b border-[#333333] bg-[#1A1A1A] flex items-center gap-3">
+          <MessageCircle className="text-[#D4AF37]" size={24} />
+          <h3 className="font-bold text-white">Messagerie avec MACIES</h3>
+        </div>
+        
+        <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-black/20">
+          {messages.length === 0 ? (
+            <p className="text-gray-500 text-center text-sm mt-4">Aucun message pour le moment. Vous pouvez discuter avec l'opérateur ici.</p>
+          ) : (
+            messages.map((msg: any) => {
+              const isMine = msg.sender.role !== 'ADMIN';
+              return (
+                <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] rounded-2xl p-4 ${isMine ? 'bg-[#D4AF37] text-black rounded-tr-sm' : 'bg-[#1A1A1A] border border-[#333333] text-white rounded-tl-sm'}`}>
+                    <div className="flex items-baseline justify-between gap-4 mb-1">
+                      <span className="font-bold text-sm opacity-80">{isMine ? 'Moi' : 'MACIES'}</span>
+                      <span className="text-xs opacity-60">
+                        {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <form onSubmit={sendMessage} className="p-4 bg-[#1A1A1A] border-t border-[#333333] flex gap-3">
+          <input 
+            type="text" 
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Écrivez votre message..." 
+            className="flex-1 bg-[#111111] border border-[#333333] rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+          />
+          <button 
+            type="submit"
+            disabled={!newMessage.trim() || sendingMessage}
+            className="w-12 h-12 bg-[#D4AF37] hover:bg-[#c29e2f] text-black rounded-full flex items-center justify-center transition-colors disabled:opacity-50 shrink-0"
+          >
+            <Send size={18} />
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
