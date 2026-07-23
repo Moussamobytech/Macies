@@ -9,6 +9,8 @@ import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Profile } from './pages/Profile';
+import { ClientPricing } from './pages/ClientPricing';
+import { Messages } from './pages/Messages';
 import { Notifications } from './pages/Notifications';
 
 import { AdminLayout } from './components/layout/AdminLayout';
@@ -21,6 +23,7 @@ import { AdminLogs } from './pages/admin/AdminLogs';
 import { AdminNotifications } from './pages/admin/AdminNotifications';
 import { AdminOrders } from './pages/admin/AdminOrders';
 import { AdminRequestDetails } from './pages/admin/AdminRequestDetails';
+import { AdminMessages } from './pages/admin/AdminMessages';
 
 function App() {
   return (
@@ -35,6 +38,7 @@ function App() {
           <Route path="requests/new" element={<NewRequest />} />
           <Route path="requests/:id" element={<RequestDetails />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="messages" element={<Messages />} />
           <Route path="settings" element={<Settings />} />
           <Route path="profile" element={<Profile />} />
           <Route path="notifications" element={<Notifications />} />
@@ -44,6 +48,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="requests" element={<AdminRequests />} />
           <Route path="requests/:id" element={<AdminRequestDetails />} />
+          <Route path="messages" element={<AdminMessages />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="clients" element={<AdminClients />} />
           <Route path="pricing" element={<AdminPricing />} />
