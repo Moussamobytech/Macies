@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Requests } from './pages/Requests';
+import { RequestDetails } from './pages/RequestDetails';
 import { NewRequest } from './pages/NewRequest';
 import { Orders } from './pages/Orders';
 import { Settings } from './pages/Settings';
@@ -31,6 +32,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="requests" element={<Requests />} />
           <Route path="requests/new" element={<NewRequest />} />
+          <Route path="requests/:id" element={<RequestDetails />} />
           <Route path="orders" element={<Orders />} />
           <Route path="settings" element={<Settings />} />
           <Route path="profile" element={<Profile />} />
