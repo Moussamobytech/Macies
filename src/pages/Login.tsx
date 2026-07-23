@@ -1,5 +1,5 @@
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { fetchApi } from '../services/api';
 import { useAuthStore } from '../store/useAuthStore';
@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/useAuthStore';
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -84,13 +85,20 @@ export function Login() {
                   <Lock className="h-5 w-5 text-gray-500" />
                 </div>
                 <input 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'} 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 bg-[#111111] border border-[#333333] rounded-lg py-3 text-white focus:outline-none focus:border-[#D4AF37]" 
+                  className="block w-full pl-10 pr-10 bg-[#111111] border border-[#333333] rounded-lg py-3 text-white focus:outline-none focus:border-[#D4AF37]" 
                   placeholder="••••••••" 
                   required
                 />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
