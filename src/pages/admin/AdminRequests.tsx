@@ -233,6 +233,7 @@ export function AdminRequests() {
                 <option value="IN_PROGRESS">En cours</option>
                 <option value="VALIDATED">Validé</option>
                 <option value="DELIVERED">Livré</option>
+                <option value="ARCHIVED">Archivé</option>
               </select>
             </div>
           </div>
@@ -276,13 +277,15 @@ export function AdminRequests() {
                             req.status === 'PENDING' ? 'border-orange-500/30 text-orange-400' :
                             req.status === 'IN_PROGRESS' ? 'border-blue-500/30 text-blue-400' :
                             req.status === 'VALIDATED' ? 'border-purple-500/30 text-purple-400' :
-                            'border-green-500/30 text-green-400'
+                            req.status === 'DELIVERED' ? 'border-green-500/30 text-green-400' :
+                            'border-gray-500/30 text-gray-400'
                           }`}
                         >
                           <option value="PENDING">En attente</option>
                           <option value="IN_PROGRESS">En cours</option>
                           <option value="VALIDATED">Validé</option>
                           <option value="DELIVERED">Livré</option>
+                          <option value="ARCHIVED">Archivé</option>
                         </select>
                       </td>
                       <td className="p-4 text-sm text-gray-500">
@@ -334,13 +337,15 @@ export function AdminRequests() {
                             req.status === 'PENDING' ? 'border-orange-500/30 text-orange-400 focus:border-orange-500' :
                             req.status === 'IN_PROGRESS' ? 'border-blue-500/30 text-blue-400 focus:border-blue-500' :
                             req.status === 'VALIDATED' ? 'border-purple-500/30 text-purple-400 focus:border-purple-500' :
-                            'border-green-500/30 text-green-400 focus:border-green-500'
+                            req.status === 'DELIVERED' ? 'border-green-500/30 text-green-400 focus:border-green-500' :
+                            'border-gray-500/30 text-gray-400 focus:border-gray-500'
                           }`}
                         >
                           <option value="PENDING" className="text-orange-400">En attente</option>
                           <option value="IN_PROGRESS" className="text-blue-400">En cours</option>
                           <option value="VALIDATED" className="text-purple-400">Validé</option>
                           <option value="DELIVERED" className="text-green-400">Livré</option>
+                          <option value="ARCHIVED" className="text-gray-400">Archivé</option>
                         </select>
                       </div>
                     </div>

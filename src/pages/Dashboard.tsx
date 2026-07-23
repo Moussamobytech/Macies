@@ -22,10 +22,13 @@ export function Dashboard() {
   }, []);
 
   const stats = [
-    { label: 'Demandes en cours', value: requests.filter(r => r.status === 'PENDING' || r.status === 'IN_PROGRESS').length.toString(), icon: Clock, color: 'text-blue-400' },
+    { label: 'Demandes en cours', value: requests.filter(r => r.status === 'PENDING' || r.status === 'IN_PROGRESS' || r.status === 'VALIDATED').length.toString(), icon: Clock, color: 'text-blue-400' },
     { label: 'Terminées', value: requests.filter(r => r.status === 'DELIVERED').length.toString(), icon: CheckCircle, color: 'text-green-400' },
-    { label: 'Commandes archivées', value: requests.length.toString(), icon: Package, color: 'text-[#D4AF37]' },
+    { label: 'Commandes archivées', value: requests.filter(r => r.status === 'ARCHIVED').length.toString(), icon: Package, color: 'text-gray-400' },
   ];
+
+  // Filter out archived requests from recent ones
+  const recentRequests = requests.filter(r => r.status !== 'ARCHIVED').slice(0, 5);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -62,13 +65,13 @@ export function Dashboard() {
         <div className="p-0">
           {loading ? (
             <p className="text-gray-400 text-center py-8">Chargement...</p>
-          ) : requests.length === 0 ? (
+          ) : recentRequests.length === 0 ? (
             <p className="text-gray-400 text-center py-8">Vous n'avez aucune demande récente pour le moment.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody>
-                  {requests.slice(0, 5).map(req => (
+                  {recentRequests.map(req => (
                     <tr key={req.id} className="border-b border-[#333333] hover:bg-[#1A1A1A]">
                       <td className="p-4 text-sm font-mono text-gray-400">#MAC-{req.id.substring(0, 4).toUpperCase()}</td>
                       <td className="p-4 text-sm font-medium">{req.type}</td>

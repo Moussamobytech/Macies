@@ -74,18 +74,38 @@ export function AdminOrders() {
                   <span className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-2 ${
                     order.paymentStatus === 'PAID' 
                       ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                      : order.paymentStatus === 'ARCHIVED'
+                      ? 'bg-gray-500/10 text-gray-500 border-gray-500/20'
                       : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
                   }`}>
-                    {order.paymentStatus === 'PAID' ? <CheckCircle size={14} /> : <Clock size={14} />}
-                    {order.paymentStatus === 'PAID' ? 'LIVRÉE' : 'EN ATTENTE'}
+                    {order.paymentStatus === 'PAID' ? <CheckCircle size={14} /> : order.paymentStatus === 'ARCHIVED' ? <Package size={14} /> : <Clock size={14} />}
+                    {order.paymentStatus === 'PAID' ? 'LIVRÉE' : order.paymentStatus === 'ARCHIVED' ? 'ARCHIVÉE' : 'EN ATTENTE'}
                   </span>
 
-                  {order.paymentStatus !== 'PAID' && (
+                  {order.paymentStatus === 'UNPAID' && (
                     <button 
                       onClick={() => handleDeliver(order.id)}
                       className="bg-[#D4AF37] hover:bg-[#c29e2f] text-black font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors text-sm"
                     >
                       <CheckCircle size={16} /> Livrer la commande
+                    </button>
+                  )}
+                  {order.paymentStatus === 'PAID' && (
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await fetchApi(`/orders/${order.id}/deliver`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ paymentStatus: 'ARCHIVED' })
+                          });
+                          setOrders(orders.map(o => o.id === order.id ? { ...o, paymentStatus: 'ARCHIVED' } : o));
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }}
+                      className="bg-[#333333] hover:bg-[#444444] text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors text-sm"
+                    >
+                      <Package size={16} /> Archiver
                     </button>
                   )}
                 </div>

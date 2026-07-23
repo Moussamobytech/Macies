@@ -38,6 +38,7 @@ export function Requests() {
       case 'IN_PROGRESS': return 'En cours';
       case 'VALIDATED': return 'Validée';
       case 'DELIVERED': return 'Livrée';
+      case 'ARCHIVED': return 'Archivée';
       default: return status;
     }
   };
