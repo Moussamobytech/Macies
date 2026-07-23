@@ -1,4 +1,4 @@
-import { Upload, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, ArrowRight, AlertCircle, CheckCircle, Monitor, FileText, Shield, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { fetchApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -126,10 +126,10 @@ export function NewRequest() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">Quel logiciel souhaitez-vous ? *</label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { id: 'Logiciel de Gestion', icon: '💻', title: 'Gestion' },
-                    { id: 'Suite Microsoft (Office 365, Windows...)', icon: '📝', title: 'Microsoft' },
-                    { id: 'Antivirus', icon: '🛡️', title: 'Antivirus' },
-                    { id: 'Autre', icon: '✨', title: 'Autre' }
+                    { id: 'Logiciel de Gestion', icon: <Monitor size={32} className="mb-2" />, title: 'Gestion' },
+                    { id: 'Suite Microsoft (Office 365, Windows...)', icon: <FileText size={32} className="mb-2" />, title: 'Microsoft' },
+                    { id: 'Antivirus', icon: <Shield size={32} className="mb-2" />, title: 'Antivirus' },
+                    { id: 'Autre', icon: <Sparkles size={32} className="mb-2" />, title: 'Autre' }
                   ].map(software => {
                     const isSelected = 
                       (software.id !== 'Autre' && softwareName === software.id) || 
@@ -141,11 +141,11 @@ export function NewRequest() {
                         onClick={() => setSoftwareName(software.id)}
                         className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all ${
                           isSelected 
-                          ? 'bg-[#D4AF37]/10 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.2)]' 
-                          : 'bg-[#1A1A1A] border-[#333333] hover:border-[#D4AF37]/50'
+                          ? 'bg-[#D4AF37]/10 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.2)] text-[#D4AF37]' 
+                          : 'bg-[#1A1A1A] border-[#333333] hover:border-[#D4AF37]/50 text-gray-400 hover:text-gray-300'
                         }`}
                       >
-                        <span className="text-3xl mb-2">{software.icon}</span>
+                        {software.icon}
                         <span className={`text-sm font-bold ${isSelected ? 'text-[#D4AF37]' : 'text-gray-400'}`}>{software.title}</span>
                         {isSelected && <div className="mt-3 w-2 h-2 bg-[#D4AF37] rounded-full"></div>}
                       </div>
