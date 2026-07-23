@@ -79,7 +79,7 @@ export function Messages() {
   return (
     <div className="h-[calc(100vh-8rem)] flex gap-6 animate-in fade-in duration-500">
       {/* Sidebar - Liste des conversations */}
-      <div className="w-1/3 bg-[#111111] border border-[#333333] rounded-xl shadow-xl flex flex-col overflow-hidden">
+      <div className={`${selectedRequestId ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 bg-[#111111] border border-[#333333] rounded-xl shadow-xl flex-col overflow-hidden`}>
         <div className="p-4 border-b border-[#333333] bg-[#1A1A1A]">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <MessageSquare className="text-[#D4AF37]" size={20} /> Mes Conversations
@@ -125,14 +125,22 @@ export function Messages() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 bg-[#111111] border border-[#333333] rounded-xl shadow-xl flex flex-col overflow-hidden">
+      <div className={`${!selectedRequestId ? 'hidden md:flex' : 'flex'} flex-1 w-full md:w-2/3 bg-[#111111] border border-[#333333] rounded-xl shadow-xl flex-col overflow-hidden`}>
         {selectedRequestId ? (
           <>
             <div className="p-4 border-b border-[#333333] bg-[#1A1A1A] flex flex-col">
-              <h3 className="font-bold text-white text-lg">
-                MACIES ENTERPRISE
-              </h3>
-              <p className="text-xs text-gray-400 flex items-center gap-1">
+              <div className="flex items-center gap-3 mb-2">
+                <button 
+                  onClick={() => setSelectedRequestId(null)}
+                  className="md:hidden p-2 -ml-2 text-gray-400 hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <h3 className="font-bold text-white text-lg flex items-center gap-2">
+                  MACIES ENTERPRISE
+                </h3>
+              </div>
+              <p className="text-xs text-gray-400 flex items-center gap-1 pl-10 md:pl-0">
                 <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
                 Support en ligne
               </p>
@@ -141,18 +149,18 @@ export function Messages() {
               </div>
             </div>
             
-            <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-black/20">
+            <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4 bg-black/20">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
                   <MessageSquare size={48} className="opacity-20" />
-                  <p>Aucun message. Commencez à discuter avec notre équipe !</p>
+                  <p className="text-center px-4">Aucun message. Commencez à discuter avec notre équipe !</p>
                 </div>
               ) : (
                 messages.map((msg: any) => {
                   const isMine = msg.sender.role !== 'ADMIN';
                   return (
                     <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] rounded-2xl p-4 ${isMine ? 'bg-[#D4AF37] text-black rounded-tr-sm' : 'bg-[#1A1A1A] border border-[#333333] text-white rounded-tl-sm'}`}>
+                      <div className={`max-w-[85%] md:max-w-[80%] rounded-2xl p-4 ${isMine ? 'bg-[#D4AF37] text-black rounded-tr-sm' : 'bg-[#1A1A1A] border border-[#333333] text-white rounded-tl-sm'}`}>
                         <div className="flex items-baseline justify-between gap-4 mb-1">
                           <span className="font-bold text-sm opacity-80">{isMine ? 'Moi' : 'MACIES'}</span>
                           <span className="text-xs opacity-60">
@@ -167,13 +175,13 @@ export function Messages() {
               )}
             </div>
 
-            <form onSubmit={sendMessage} className="p-4 bg-[#1A1A1A] border-t border-[#333333] flex gap-3">
+            <form onSubmit={sendMessage} className="p-3 md:p-4 bg-[#1A1A1A] border-t border-[#333333] flex gap-2 md:gap-3">
               <input 
                 type="text" 
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Écrivez votre message..." 
-                className="flex-1 bg-[#111111] border border-[#333333] rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="flex-1 bg-[#111111] border border-[#333333] rounded-full px-4 md:px-5 py-3 text-sm text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
               />
               <button 
                 type="submit"
@@ -185,7 +193,7 @@ export function Messages() {
             </form>
           </>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4">
+          <div className="hidden md:flex h-full flex-col items-center justify-center text-gray-500 space-y-4">
             <MessageSquare size={48} className="opacity-20 text-[#D4AF37]" />
             <p>Sélectionnez une demande à gauche pour voir les messages.</p>
           </div>
