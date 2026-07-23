@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchApi } from '../services/api';
-import { ArrowLeft, Clock, CheckCircle, Package, Download, AlertCircle, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Package, Download, AlertCircle, FileText, MessageCircle } from 'lucide-react';
 
 export function RequestDetails() {
   const { id } = useParams<{ id: string }>();

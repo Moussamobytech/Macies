@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../services/api';
-import { MessageSquare, Send, User, Search, Clock } from 'lucide-react';
+import { MessageSquare, Send, Search, Clock } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 export function Messages() {
@@ -11,8 +11,6 @@ export function Messages() {
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const { user } = useAuthStore();
 
   useEffect(() => {
     const loadRequests = async () => {
