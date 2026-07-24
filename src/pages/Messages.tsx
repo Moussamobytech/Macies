@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchApi } from '../services/api';
 import { MessageSquare, Send, Search, Clock } from 'lucide-react';
-import { useAuthStore } from '../store/useAuthStore';
 
 export function Messages() {
   const [requests, setRequests] = useState<any[]>([]);

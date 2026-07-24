@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchApi } from '../services/api';
-import { ArrowLeft, Clock, CheckCircle, Package, Download, AlertCircle, FileText, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Package, Download, AlertCircle, FileText, MessageCircle, Send } from 'lucide-react';
 
 export function RequestDetails() {
   const { id } = useParams<{ id: string }>();
@@ -248,5 +248,3 @@ export function RequestDetails() {
     </div>
   );
 }
-
-import { MessageCircle, Send } from 'lucide-react';
